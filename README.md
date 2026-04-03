@@ -1,4 +1,4 @@
-# caelestia-vim-colors
+# caelestia-vim-synced
 
 Dynamic Vim and Neovim colorscheme that syncs with
 [Caelestia](https://github.com/caelestia-dots/shell)'s Material 3 palette.
