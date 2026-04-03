@@ -1,0 +1,15 @@
+[Unit]
+Description=Caelestia -> Neovim colour sync
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+# Add or remove --transparent as needed.
+# Add --with-vim to also generate Vim, or --vim-only to skip Neovim.
+ExecStart=%h/.local/bin/caelestia-colorwatch.sh --transparent
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
