@@ -1,4 +1,4 @@
-# caelestia-vim-colors
+# caelestia-vim-synced
 
 Dynamic Vim and Neovim colorscheme that syncs with
 [Caelestia](https://github.com/caelestia-dots/shell)'s Material 3 palette.
@@ -76,7 +76,19 @@ exec-once = ~/.local/bin/caelestia-colorwatch.sh --transparent
 ```
 
 ## Usage
+```
+Usage: install.sh [options]
+Install caelestia-vim-colors (colorscheme sync for Neovim/Vim)
 
+Options passed to caelestia-colorgen.py for initial generation:
+  -t, --transparent  Transparent editor background
+  --with-vim         Also generate the Vim colorscheme
+  --vim-only         Only generate the Vim colorscheme (skip Neovim)
+  --no-signal        Do not send SIGUSR1 to running Neovim instances
+
+  -h, --help         Show this help message
+                         
+```
 ```
 caelestia-colorgen.py [OPTIONS]
 
