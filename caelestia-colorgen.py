@@ -182,7 +182,7 @@ class Palette:
 
     @property
     def diff_add(self):
-        return blend(self.surface, self.c("tertiary", "4caf50"), 0.2)
+        return blend(self.surface, self.success, 0.2)
 
     @property
     def diff_change(self):
@@ -197,11 +197,17 @@ class Palette:
         return blend(self.surface, self.c("primary", "2196f3"), 0.35)
 
     @property
-    def diag_warn(self):
-        return self.c("tertiary", "fb8c00")
+    def success(self):             return self.c("success", "4caf50")
 
     @property
-    def diag_hint(self):           return self.tertiary
+    def on_success(self):          return self.c("onSuccess", "213528")
+
+    @property
+    def diag_warn(self):
+        return self.c("tertiaryFixedDim", self._colours.get("tertiary", "fb8c00"))
+
+    @property
+    def diag_hint(self):           return self.outline
 
 
 # Neovim Lua generator
@@ -218,9 +224,11 @@ def generate_lua(p: Palette, transparent: bool) -> str:
     fcol_bg = NONE if transparent else p.surface
     tfill   = NONE if transparent else p.surface
     wbar_bg = NONE if transparent else p.surface
-    sl_bg   = NONE if transparent else p.surface_container
-    slnc_bg = NONE if transparent else p.surface_container_low
-    eob_fg  = NONE if transparent else p.surface
+    sl_bg   = NONE if transparent else p.surface_container_high
+    slnc_bg = NONE if transparent else p.surface_container
+    cl_bg   = NONE if transparent else p.cursorline_bg
+    fold_bg = NONE if transparent else p.surface_container_low
+    eob_fg  = p.surface if transparent else p.surface
 
     tr_label = "yes" if transparent else "no"
 
@@ -263,14 +271,14 @@ def generate_lua(p: Palette, transparent: bool) -> str:
     hi("FloatBorder",      fg=p.outline_variant,     bg=p.surface_container)
     hi("FloatTitle",       fg=p.primary,             bg=p.surface_container, bold=True)
     hi("Cursor",           fg=p.surface,             bg=p.on_surface)
-    hi("CursorLine",       bg=p.cursorline_bg)
-    hi("CursorColumn",     bg=p.cursorline_bg)
+    hi("CursorLine",       bg=cl_bg)
+    hi("CursorColumn",     bg=cl_bg)
     hi("ColorColumn",      bg=p.surface_container_low)
     hi("LineNr",           fg=p.outline)
     hi("CursorLineNr",     fg=p.on_surface, bold=True)
     hi("SignColumn",       fg=p.on_surface_variant,  bg=sign_bg)
     hi("FoldColumn",       fg=p.outline,             bg=fcol_bg)
-    hi("Folded",           fg=p.on_surface_variant,  bg=p.surface_container_low)
+    hi("Folded",           fg=p.on_surface_variant,  bg=fold_bg)
     hi("VertSplit",        fg=p.outline_variant)
     hi("WinSeparator",     fg=p.outline_variant)
 
@@ -338,10 +346,11 @@ def generate_lua(p: Palette, transparent: bool) -> str:
     hi("DiagnosticUnderlineWarn",  undercurl=True, sp=p.diag_warn)
     hi("DiagnosticUnderlineInfo",  undercurl=True, sp=p.primary)
     hi("DiagnosticUnderlineHint",  undercurl=True, sp=p.diag_hint)
-    hi("DiagnosticVirtualTextError", fg=p.error,     bg=blend(p.surface, p.error, 0.1))
-    hi("DiagnosticVirtualTextWarn",  fg=p.diag_warn, bg=blend(p.surface, p.diag_warn, 0.1))
-    hi("DiagnosticVirtualTextInfo",  fg=p.primary,   bg=blend(p.surface, p.primary, 0.1))
-    hi("DiagnosticVirtualTextHint",  fg=p.diag_hint, bg=blend(p.surface, p.diag_hint, 0.1))
+    vt_bg = lambda accent: None if transparent else blend(p.surface, accent, 0.1)
+    hi("DiagnosticVirtualTextError", fg=p.error,     bg=vt_bg(p.error))
+    hi("DiagnosticVirtualTextWarn",  fg=p.diag_warn, bg=vt_bg(p.diag_warn))
+    hi("DiagnosticVirtualTextInfo",  fg=p.primary,   bg=vt_bg(p.primary))
+    hi("DiagnosticVirtualTextHint",  fg=p.diag_hint, bg=vt_bg(p.diag_hint))
 
     a("")
     a("-- Spell")
@@ -386,7 +395,7 @@ def generate_lua(p: Palette, transparent: bool) -> str:
     hi("Underlined",       fg=p.primary, underline=True)
     hi("Error",            fg=p.on_error, bg=p.error)
     hi("Todo",             fg=p.on_primary_container, bg=p.primary_container, bold=True)
-    hi("Added",            fg=p.tertiary)
+    hi("Added",            fg=p.success)
     hi("Changed",          fg=p.primary)
     hi("Removed",          fg=p.error)
 
@@ -484,9 +493,11 @@ def generate_vim(p: Palette, transparent: bool) -> str:
     fcol_bg = NONE if transparent else p.surface
     tfill   = NONE if transparent else p.surface
     wbar_bg = NONE if transparent else p.surface
-    sl_bg   = NONE if transparent else p.surface_container
-    slnc_bg = NONE if transparent else p.surface_container_low
-    eob_fg  = NONE if transparent else p.surface
+    sl_bg   = NONE if transparent else p.surface_container_high
+    slnc_bg = NONE if transparent else p.surface_container
+    cl_bg   = NONE if transparent else p.cursorline_bg
+    fold_bg = NONE if transparent else p.surface_container_low
+    eob_fg  = p.surface if transparent else p.surface
 
     lines: list[str] = []
     a = lines.append
@@ -531,14 +542,14 @@ def generate_vim(p: Palette, transparent: bool) -> str:
     hi("Normal",           fg=p.on_surface,          bg=n_bg)
     hi("NormalFloat",      fg=p.on_surface,          bg=p.surface_container)
     hi("Cursor",           fg=p.surface,             bg=p.on_surface)
-    hi("CursorLine",       bg=p.cursorline_bg)
-    hi("CursorColumn",     bg=p.cursorline_bg)
+    hi("CursorLine",       bg=cl_bg)
+    hi("CursorColumn",     bg=cl_bg)
     hi("ColorColumn",      bg=p.surface_container_low)
     hi("LineNr",           fg=p.outline)
     hi("CursorLineNr",     fg=p.on_surface, bold=True)
     hi("SignColumn",       fg=p.on_surface_variant,  bg=sign_bg)
     hi("FoldColumn",       fg=p.outline,             bg=fcol_bg)
-    hi("Folded",           fg=p.on_surface_variant,  bg=p.surface_container_low)
+    hi("Folded",           fg=p.on_surface_variant,  bg=fold_bg)
     hi("VertSplit",        fg=p.outline_variant)
 
     a("")
